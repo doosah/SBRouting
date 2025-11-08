@@ -41,8 +41,8 @@ class Router {
       // Update breadcrumbs
       const breadcrumbs = store.get('breadcrumbs');
       if (breadcrumbs.length > 1) {
-        breadcrumbs.pop();
-        store.updateBreadcrumbs(breadcrumbs);
+        // Create a copy before mutating to avoid direct state mutation
+        store.updateBreadcrumbs(breadcrumbs.slice(0, -1));
       }
     }
   }
