@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Единый отчет Службы Безопасности</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <script type="module" crossorigin src="/SBRouting/assets/main-BcWo9ViA.js"></script>
+  <link rel="stylesheet" crossorigin href="/SBRouting/assets/main-DDItAN_E.css">
+</head>
+<body class="background-fon">
+    <!-- Fixed Back Button -->
+    <button class="back-button" id="backButton" style="display: none;">← Назад</button>
+
+    <div class="container">
+        <div class="header-wrapper">
+            <header class="header">
+                <div class="header-content">
+                    <div class="header-brand">
+                        <img class="header-logo" src="/SBRouting/assets/img/logo.png" alt="Логотип службы безопасности">
+                        <div class="header-text">
+                            <h1>Единый центр отчетности СБ</h1>
+                            <p>Сводим инциденты, обращения и проверки в одном интерактивном рабочем месте</p>
+                        </div>
+                    </div>
+                    <div class="header-actions">
+                        <button class="ghost-button" id="resetDataBtn">
+                            🔄 Перезагрузить тестовые данные
+                        </button>
+                    </div>
+                </div>
+            </header>
+        </div>
+
+        <!-- Breadcrumb -->
+        <div class="breadcrumb" id="breadcrumb"></div>
+
+        <!-- Level 1: Main Entry -->
+        <div class="level-container active" id="level1">
+            <div class="button-grid">
+                <button class="main-button" 
+                        style="background: linear-gradient(90deg, rgba(12, 64, 140, 0.95) 0%, rgba(62, 39, 112, 0.95) 100%);"
+                        id="mainReportBtn">
+                    📊 Единый отчет Службы Безопасности
+                </button>
+                <button class="main-button" 
+                        style="background: linear-gradient(90deg, rgba(74, 38, 82, 0.95) 0%, rgba(128, 82, 20, 0.95) 100%);"
+                        id="summaryBtn">
+                    📈 Свод по РФ общий
+                </button>
+            </div>
+
+            <section class="global-summary-section">
+                <h2>Проведенные расследования, текущий год — total</h2>
+                <div class="global-card-grid">
+                    <div class="global-card">
+                        <span>Кол-во</span>
+                        <strong id="globalTotalInvestigations">0</strong>
+                    </div>
+                    <div class="global-card">
+                        <span>Отработано</span>
+                        <strong id="globalTotalWorked">0 ₽</strong>
+                    </div>
+                    <div class="global-card">
+                        <span>Выявленного ущерба</span>
+                        <strong id="globalTotalDetected">0 ₽</strong>
+                    </div>
+                    <div class="global-card">
+                        <span>Возмещено</span>
+                        <strong id="globalTotalReturned">0 ₽</strong>
+                    </div>
+                    <div class="global-card">
+                        <span>Дельта</span>
+                        <strong id="globalTotalDelta">0 ₽</strong>
+                    </div>
+                    <div class="global-card">
+                        <span>% Возмещения</span>
+                        <strong id="globalPercentReturned">0%</strong>
+                    </div>
+                </div>
+            </section>
+
+            <section class="global-incident-section">
+                <div class="global-incident-header">
+                    <h2>Инциденты, попадающие под приказ</h2>
+                    <div class="global-incident-total">
+                        <span>Всего инцидентов</span>
+                        <strong id="globalIncidentTotal">0</strong>
+                    </div>
+                </div>
+                <div class="global-incident-table-wrapper">
+                    <table class="global-incident-table">
+                        <thead>
+                            <tr>
+                                <th>Инцидент</th>
+                                <th>Кол-во</th>
+                                <th>Регионы</th>
+                            </tr>
+                        </thead>
+                        <tbody id="globalIncidentTable">
+                            <tr>
+                                <td colspan="3" class="empty">Нет данных</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <!-- Level 2: Region Selection -->
+        <div class="level-container" id="level2">
+            <div class="button-grid" id="regionButtons"></div>
+        </div>
+
+        <!-- Level 3: Type Selection -->
+        <div class="level-container" id="level3">
+            <div class="button-grid" id="typeButtons"></div>
+        </div>
+
+        <!-- Level 4: Warehouse Selection -->
+        <div class="level-container" id="level4">
+            <div class="warehouse-list" id="warehouseList"></div>
+        </div>
+
+        <!-- Level 5: Forms -->
+        <div class="level-container" id="level5">
+            <div class="button-grid" id="formTypeButtons"></div>
+            
+            <!-- Calendar and forms will be rendered here dynamically -->
+            <div id="calendarContainer"></div>
+            <div id="formContainer"></div>
+        </div>
+
+        <!-- Summary Page -->
+        <div class="level-container" id="summary">
+            <div id="summaryContent"></div>
+        </div>
+    </div>
+
+    <!-- Main Application Script -->
+</body>
+</html>
