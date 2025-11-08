@@ -1,0 +1,28 @@
+{
+  "name": "sbreport",
+  "version": "2.0.0",
+  "description": "Единый центр отчетности Службы Безопасности",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "lint": "echo 'ESLint будет настроен позже'",
+    "format": "echo 'Prettier будет настроен позже'",
+    "test": "echo 'Тесты будут добавлены позже'"
+  },
+  "keywords": [
+    "security",
+    "reports",
+    "analytics",
+    "warehouses"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {
+    "vite": "^5.4.11"
+  },
+  "dependencies": {
+    "chart.js": "^4.4.7"
+  }
+}
