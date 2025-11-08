@@ -1,0 +1,2257 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Единый отчет Службы Безопасности</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <link rel="stylesheet" href="assets/css/main.css">
+</head>
+<body class="background-fon">
+    <!-- Fixed Back Button -->
+    <button class="back-button" id="backButton" onclick="goBack()">← Назад</button>
+
+    <div class="container">
+        <div class="header-wrapper">
+        <header class="header">
+            <div class="header-content">
+                <div class="header-brand">
+                    <img class="header-logo" src="assets/img/logo.png" alt="Логотип службы безопасности">
+                    <div class="header-text">
+                        <h1>Единый центр отчетности СБ</h1>
+                        <p>Сводим инциденты, обращения и проверки в одном интерактивном рабочем месте</p>
+                    </div>
+                </div>
+                <div class="header-actions">
+                    <button class="ghost-button" onclick="resetTestData()">
+                🔄 Перезагрузить тестовые данные
+            </button>
+        </div>
+            </div>
+        </header>
+        </div>
+
+        <!-- Breadcrumb -->
+        <div class="breadcrumb" id="breadcrumb"></div>
+
+        <!-- Level 1: Main Entry -->
+        <div class="level-container active" id="level1">
+            <div class="button-grid">
+                <button class="main-button" style="background: linear-gradient(90deg, rgba(12, 64, 140, 0.95) 0%, rgba(62, 39, 112, 0.95) 100%);" onclick="goToLevel(2)">
+                    📊 Единый отчет Службы Безопасности
+                </button>
+                <button class="main-button" style="background: linear-gradient(90deg, rgba(74, 38, 82, 0.95) 0%, rgba(128, 82, 20, 0.95) 100%);" onclick="openSummary('general')">
+                    📈 Свод по РФ общий
+                </button>
+            </div>
+
+            <section class="global-summary-section">
+                <h2>Проведенные расследования, текущий год — total</h2>
+                <div class="global-card-grid">
+                    <div class="global-card">
+                        <span>Кол-во</span>
+                        <strong id="globalTotalInvestigations">0</strong>
+                    </div>
+                    <div class="global-card">
+                        <span>Отработано</span>
+                        <strong id="globalTotalWorked">0 ₽</strong>
+                    </div>
+                    <div class="global-card">
+                        <span>Выявленного ущерба</span>
+                        <strong id="globalTotalDetected">0 ₽</strong>
+                    </div>
+                    <div class="global-card">
+                        <span>Возмещено</span>
+                        <strong id="globalTotalReturned">0 ₽</strong>
+                    </div>
+                    <div class="global-card">
+                        <span>Дельта</span>
+                        <strong id="globalTotalDelta">0 ₽</strong>
+                    </div>
+                    <div class="global-card">
+                        <span>% Возмещения</span>
+                        <strong id="globalPercentReturned">0%</strong>
+                    </div>
+                </div>
+            </section>
+
+            <section class="global-incident-section">
+                <div class="global-incident-header">
+                    <h2>Инциденты, попадающие под приказ</h2>
+                    <div class="global-incident-total">
+                        <span>Всего инцидентов</span>
+                        <strong id="globalIncidentTotal">0</strong>
+                    </div>
+                </div>
+                <div class="global-incident-table-wrapper">
+                    <table class="global-incident-table">
+                        <thead>
+                            <tr>
+                                <th>Инцидент</th>
+                                <th>Кол-во</th>
+                                <th>Регионы</th>
+                            </tr>
+                        </thead>
+                        <tbody id="globalIncidentTable">
+                            <tr>
+                                <td colspan="3" class="empty">Нет данных</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+        </div>
+
+        <!-- Level 2: Regions -->
+        <div class="level-container" id="level2">
+            <div class="regions-list">
+                <button class="region-tile" onclick="selectRegion('СЗФО')">СЗФО</button>
+                <button class="region-tile" onclick="selectRegion('МСК - 1/2')">Москва 1/2</button>
+                <button class="region-tile" onclick="selectRegion('МСК - 3/ЮГ')">Москва 3 / Юг</button>
+                <button class="region-tile" onclick="selectRegion('Поволжье')">Поволжье</button>
+                <button class="region-tile" onclick="selectRegion('Урал')">Урал</button>
+                <button class="region-tile" onclick="selectRegion('СДВ')">Сибирь и Дальний Восток</button>
+            </div>
+        </div>
+
+        <!-- Level 3: Fulfillment/Logistics -->
+        <div class="level-container" id="level3">
+            <div class="button-grid region-actions">
+                <button class="main-button type-button" data-type="FullFilment" style="background: linear-gradient(90deg, rgba(12, 64, 140, 0.95) 0%, rgba(62, 39, 112, 0.95) 100%);" onclick="selectType('FullFilment')">FullFilment</button>
+                <button class="main-button type-button" data-type="Логистика" style="background: linear-gradient(90deg, rgba(22, 94, 72, 0.95) 0%, rgba(128, 82, 20, 0.95) 100%);" onclick="selectType('Логистика')">Логистика</button>
+                <button class="main-button summary-button" id="regionSummaryButton" style="background: linear-gradient(90deg, rgba(74, 38, 82, 0.95) 0%, rgba(128, 82, 20, 0.95) 100%);" onclick="openSummary('region')">
+                    📊 Свод по региону <span id="regionSummaryButtonLabel">—</span>
+                </button>
+            </div>
+
+            <div class="context-dashboards" id="regionDashboards" style="display: none;">
+                <section class="context-summary-section">
+                    <h3>Проведенные расследования, текущий год — <span id="regionContextLabel">Регион</span></h3>
+                    <div class="global-card-grid">
+                        <div class="global-card">
+                            <span>Кол-во</span>
+                            <strong id="regionTotalInvestigations">0</strong>
+                        </div>
+                        <div class="global-card">
+                            <span>Отработано</span>
+                            <strong id="regionTotalWorked">0 ₽</strong>
+                        </div>
+                        <div class="global-card">
+                            <span>Выявленного ущерба</span>
+                            <strong id="regionTotalDetected">0 ₽</strong>
+                        </div>
+                        <div class="global-card">
+                            <span>Возмещено</span>
+                            <strong id="regionTotalReturned">0 ₽</strong>
+                        </div>
+                        <div class="global-card">
+                            <span>Дельта</span>
+                            <strong id="regionTotalDelta">0 ₽</strong>
+                        </div>
+                        <div class="global-card">
+                            <span>% Возмещения</span>
+                            <strong id="regionPercentReturned">0%</strong>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="context-incident-section">
+                    <div class="global-incident-header">
+                        <h3>Инциденты «под приказ» — <span id="regionIncidentLabel">Регион</span></h3>
+                        <div class="global-incident-total">
+                            <span>Всего инцидентов</span>
+                            <strong id="regionIncidentTotal">0</strong>
+                        </div>
+                    </div>
+                    <div class="global-incident-table-wrapper">
+                        <table class="global-incident-table">
+                            <thead>
+                                <tr>
+                                    <th>Инцидент</th>
+                                    <th>Кол-во</th>
+                                    <th>Склады</th>
+                                </tr>
+                            </thead>
+                            <tbody id="regionIncidentTable">
+                                <tr><td colspan="3" class="empty">Нет данных</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+                </div>
+
+            <div class="context-dashboards" id="typeDashboards" style="display: none;">
+                <section class="context-summary-section">
+                    <h3>Проведенные расследования, текущий год — <span id="typeContextLabel">Регион</span></h3>
+                    <div class="global-card-grid">
+                        <div class="global-card">
+                            <span>Кол-во</span>
+                            <strong id="typeTotalInvestigations">0</strong>
+                        </div>
+                        <div class="global-card">
+                            <span>Отработано</span>
+                            <strong id="typeTotalWorked">0 ₽</strong>
+                        </div>
+                        <div class="global-card">
+                            <span>Выявленного ущерба</span>
+                            <strong id="typeTotalDetected">0 ₽</strong>
+                        </div>
+                        <div class="global-card">
+                            <span>Возмещено</span>
+                            <strong id="typeTotalReturned">0 ₽</strong>
+                        </div>
+                        <div class="global-card">
+                            <span>Дельта</span>
+                            <strong id="typeTotalDelta">0 ₽</strong>
+                        </div>
+                        <div class="global-card">
+                            <span>% Возмещения</span>
+                            <strong id="typePercentReturned">0%</strong>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="context-incident-section">
+                    <div class="global-incident-header">
+                        <h3>Инциденты «под приказ» — <span id="typeIncidentLabel">Регион</span></h3>
+                        <div class="global-incident-total">
+                            <span>Всего инцидентов</span>
+                            <strong id="typeIncidentTotal">0</strong>
+                        </div>
+                    </div>
+                    <div class="global-incident-table-wrapper">
+                        <table class="global-incident-table">
+                            <thead>
+                                <tr>
+                                    <th>Инцидент</th>
+                                    <th>Кол-во</th>
+                                    <th>Склады</th>
+                                </tr>
+                            </thead>
+                            <tbody id="typeIncidentTable">
+                                <tr><td colspan="3" class="empty">Нет данных</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </section>
+                    </div>
+                    
+            <div class="button-grid" id="typeSummaryCallout" style="display: none;">
+                <button class="main-button summary-button" onclick="openSummary('type')">
+                    📈 Свод <span id="typeSummaryButtonLabel">Тип • Регион</span>
+                    </button>
+                </div>
+
+            <!-- Warehouse List -->
+            <div class="warehouse-list" id="warehouseList"></div>
+
+            <div class="calendar-layout" id="calendarLayout" style="display: none;">
+                <!-- Calendar (1/3 width) -->
+                <div class="calendar-container" id="calendarContainer">
+                    <div class="calendar-heading">
+                        <h3 class="calendar-title"><span>📅</span> Выберите дату</h3>
+                </div>
+
+                    <div class="calendar-controls">
+                        <button type="button" class="calendar-nav-btn" onclick="navigateCalendar('prev')">←</button>
+                        <div class="calendar-period-toggle">
+                            <button type="button" class="period-btn active" id="weekPeriodBtn" onclick="switchCalendarPeriod('week')">Неделя</button>
+                            <button type="button" class="period-btn" id="monthPeriodBtn" onclick="switchCalendarPeriod('month')">Месяц</button>
+                        </div>
+                        <button type="button" class="calendar-nav-btn" onclick="navigateCalendar('next')">→</button>
+            </div>
+
+                    <div id="calendarGrid" class="calendar-grid"></div>
+
+                    <div class="calendar-selected">
+                        <span>Выбрано: <strong id="selectedDateDisplay">Не выбрано</strong></span>
+                    </div>
+                </div>
+
+                <!-- Side Panel (2/3 width) -->
+                <div class="calendar-side-panel">
+            <!-- Report Types -->
+                    <div class="calendar-side-block" id="reportTypes" style="display: none;">
+                        <button class="main-button report-button" style="background: linear-gradient(90deg, rgba(12, 64, 140, 0.95) 0%, rgba(62, 39, 112, 0.95) 100%);" onclick="openReport('investigations')">🔍 Расследования</button>
+                        <button class="main-button report-button" style="background: linear-gradient(90deg, rgba(15, 85, 120, 0.95) 0%, rgba(74, 38, 82, 0.95) 100%);" onclick="openReport('activities')">👮 Мероприятия СБ-ЧОП</button>
+                        <button class="main-button report-button" style="background: linear-gradient(90deg, rgba(128, 82, 20, 0.95) 0%, rgba(255, 120, 140, 0.85) 100%);" onclick="openReport('incidents')">🚨 Инциденты ЧП/ЧС</button>
+                        <button class="main-button report-button" style="background: linear-gradient(90deg, rgba(22, 94, 72, 0.95) 0%, rgba(128, 82, 20, 0.95) 100%); grid-column: 1 / -1; text-align: center;" onclick="openReport('appeals')">📞 Обращения OJ</button>
+            </div>
+
+                    <!-- Summary Buttons -->
+                    <div class="calendar-side-block" id="summaryButtons" style="display: none; margin-top: 24px;">
+                        <button class="main-button" style="background: linear-gradient(90deg, rgba(12, 64, 140, 0.95) 0%, rgba(62, 39, 112, 0.95) 100%);" onclick="openSummary('object')">
+                            📊 Свод по объекту
+                </button>
+                        <button class="main-button" style="background: linear-gradient(90deg, rgba(22, 94, 72, 0.95) 0%, rgba(128, 82, 20, 0.95) 100%);" onclick="openSummary('months')">
+                    📅 Динамика по месяцам
+                </button>
+                        <button class="main-button" style="background: linear-gradient(90deg, rgba(74, 38, 82, 0.95) 0%, rgba(128, 82, 20, 0.95) 100%);" onclick="openSummary('weeks')">
+                    📆 Динамика по неделям
+                </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Level 4: Investigation Form -->
+        <div class="level-container" id="level4-investigations">
+            <div class="form-container">
+                <h2 style="color: #4fc3f7; margin-bottom: 30px;">🔍 Расследования</h2>
+                
+                <div class="check-type-selector">
+                    <h3 style="color: #e0e0e0; margin-bottom: 20px;">Выберите вид проверки:</h3>
+                    
+                    <!-- Top 6 Check Types -->
+                    <div class="check-type-grid">
+                        <button class="check-type-button" onclick="selectCheckType('ФРОД')">ФРОД</button>
+                        <button class="check-type-button" onclick="selectCheckType('Подмены')">Подмены</button>
+                        <button class="check-type-button" onclick="selectCheckType('MPCRM + Торг 2')">MPCRM + Торг 2</button>
+                        <button class="check-type-button" onclick="selectCheckType('Puzzle')">Puzzle</button>
+                        <button class="check-type-button" onclick="selectCheckType('Инвент (СЦ)')">Інвент (СЦ)</button>
+                        <button class="check-type-button" onclick="selectCheckType('NF')">NF</button>
+                    </div>
+
+                    <!-- Dropdown for other types -->
+                    <select class="check-type-dropdown" id="otherCheckTypes" onchange="selectCheckTypeFromDropdown()">
+                        <option value="">-- Другие виды проверок --</option>
+                        <option value="КРАЖА">КРАЖА</option>
+                        <option value="POSS">POSS</option>
+                        <option value="AFF">AFF</option>
+                        <option value="Проверка C2C">Проверка C2C</option>
+                        <option value="RTRNS">RTRNS</option>
+                        <option value="FIN (Потери Основных средств)">FIN (Потери Основных средств)</option>
+                        <option value="Расследование HL (compliance)">Расследование HL (compliance)</option>
+                        <option value="Контроль утилизации, реализации (только аномалии)">Контроль утилизации, реализации (только аномалии)</option>
+                        <option value="Проверка годовой инвентаризации (ФФ)">Проверка годовой инвентаризации (ФФ)</option>
+                        <option value="Проверка расходных материалов">Проверка расходных материалов</option>
+                        <option value="Другое крупное расследование">Другое крупное расследование</option>
+                    </select>
+                </div>
+
+                <!-- Form Fields -->
+                <div class="form-fields" id="investigationForm">
+                    <form id="mainForm">
+                        <!-- Result Type -->
+                        <div class="form-group">
+                            <label>Результат (типовой)</label>
+                            <div class="button-group">
+                                <button type="button" class="option-button result-ok" onclick="selectResult('Нарушений не выявлено', this)">
+                                    Нарушений не выявлено
+                                </button>
+                                <button type="button" class="option-button result-violation" onclick="selectResult('Выявлено нарушение', this)">
+                                    Выявлено нарушение
+                                </button>
+                            </div>
+                            <input type="hidden" id="result" name="result">
+                        </div>
+
+                        <!-- Common Fields -->
+                        <div class="form-group">
+                            <label>Идентификаторы предметов/Ссылка на заявку</label>
+                            <input type="text" id="identifiers" name="identifiers" onfocus="checkClipboard(this)">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Наименование товара</label>
+                            <input type="text" id="productName" name="productName" onfocus="checkClipboard(this)">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Сумма отработанного/ заявки</label>
+                            <input type="number" id="sumWorked" name="sumWorked" step="0.01">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Комментарий, фабула</label>
+                            <textarea id="comment" name="comment" onfocus="checkClipboard(this)"></textarea>
+                        </div>
+
+                        <!-- Dynamic Fields -->
+                        <div id="dynamicFields"></div>
+
+                        <button type="button" class="submit-button" onclick="submitForm()">Сохранить и продолжить</button>
+                        <button type="button" class="finish-button" onclick="saveAndFinish()">Сохранить и завершить работу</button>
+                    </form>
+
+                    <div class="success-message" id="successMessage">
+                        ✓ Запись успешно сохранена!
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Level 4: SB-CHOP Activities Form -->
+        <div class="level-container" id="level4-activities">
+            <div class="form-container">
+                <h2 style="color: #4fc3f7; margin-bottom: 30px;">👮 Учет мероприятий СБ-ЧОП</h2>
+                
+                <!-- Activity Type Selector -->
+                <div class="check-type-selector">
+                    <h3 style="color: #e0e0e0; margin-bottom: 20px;">Выберите тип мероприятия:</h3>
+                    
+                    <!-- Top 6 Activity Types -->
+                    <div class="check-type-grid">
+                        <button class="check-type-button" onclick="selectActivityType('ППР (Код 1000, Маяк и др)')">ППР (Код 1000, Маяк и др)</button>
+                        <button class="check-type-button" onclick="selectActivityType('Контрольный вынос')">Контрольный вынос</button>
+                        <button class="check-type-button" onclick="selectActivityType('Код Холод')">Код Холод</button>
+                        <button class="check-type-button" onclick="selectActivityType('Код 99')">Код 99</button>
+                        <button class="check-type-button" onclick="selectActivityType('Код 050')">Код 050</button>
+                        <button class="check-type-button" onclick="selectActivityType('Удалённый мониторинг')">Удалённый мониторинг</button>
+                    </div>
+
+                    <!-- Dropdown for other types -->
+                    <select class="check-type-dropdown" id="otherActivityTypes" onchange="selectActivityTypeFromDropdown()">
+                        <option value="">-- Другие типы мероприятий --</option>
+                        <option value="Ночная проверка">Ночная проверка</option>
+                        <option value="Код 100">Код 100</option>
+                        <option value="Код 500">Код 500</option>
+                        <option value="Проверка мест проживания ЧОП">Проверка мест проживания ЧОП</option>
+                        <option value="Инструктаж (трениовка) ПСПТ">Инструктаж (трениовка) ПСПТ</option>
+                        <option value="Другое">Другое</option>
+                    </select>
+                </div>
+
+                <!-- Form Fields -->
+                <div class="form-fields" id="activityForm">
+                    <form id="activityMainForm">
+                        <!-- Kind (Вид) -->
+                        <div class="form-group">
+                            <label>Вид</label>
+                            <div class="button-group">
+                                <button type="button" class="option-button" onclick="selectKind('Тренировка')">
+                                    Тренировка
+                                </button>
+                                <button type="button" class="option-button" onclick="selectKind('Реальная')">
+                                    Реальная
+                                </button>
+                            </div>
+                            <input type="hidden" id="activityKind" name="kind">
+                        </div>
+
+                        <!-- CHOP Section -->
+                        <h3 style="color: #81d4fa; margin: 30px 0 20px 0; border-bottom: 2px solid rgba(79, 195, 247, 0.3); padding-bottom: 10px;">ЧОП (Частная охранная организация)</h3>
+                        
+                        <div class="form-group">
+                            <label>Результат ЧОП</label>
+                            <div class="button-group">
+                                <button type="button" class="option-button" onclick="selectChopResult('Удовлетворительно')">
+                                    Удовлетворительно
+                                </button>
+                                <button type="button" class="option-button" onclick="selectChopResult('Неудовлетворительно')">
+                                    Неудовлетворительно
+                                </button>
+                            </div>
+                            <input type="hidden" id="chopResult" name="chopResult">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Время реагирования ЧОП (например: 00:05:30)</label>
+                            <input type="text" id="chopResponseTime" name="chopResponseTime" placeholder="чч:мм:сс" onfocus="checkClipboard(this)">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Название ЧОП</label>
+                            <select id="chopName" name="chopName">
+                                <option value="">-- Выберите --</option>
+                                <option value='ЧОП "Император/Матрица-78"'>ЧОП "Император/Матрица-78"</option>
+                                <option value='ЧОП "Вольф"'>ЧОП "Вольф"</option>
+                                <option value='ЧОП "КНБ-3"'>ЧОП "КНБ-3"</option>
+                                <option value='ЧОП "Витязь-К"'>ЧОП "Витязь-К"</option>
+                                <option value='ЧОП "РН-Безопасность"'>ЧОП "РН-Безопасность"</option>
+                            </select>
+                        </div>
+
+                        <!-- CHPO Section -->
+                        <h3 style="color: #81d4fa; margin: 30px 0 20px 0; border-bottom: 2px solid rgba(79, 195, 247, 0.3); padding-bottom: 10px;">ЧПО (Частная пожарная организация)</h3>
+                        
+                        <div class="form-group">
+                            <label>Результат ЧПО (опционально)</label>
+                            <div class="button-group">
+                                <button type="button" class="option-button" onclick="selectChpoResult('Удовлетворительно')">
+                                    Удовлетворительно
+                                </button>
+                                <button type="button" class="option-button" onclick="selectChpoResult('Неудовлетворительно')">
+                                    Неудовлетворительно
+                                </button>
+                                <button type="button" class="option-button" onclick="selectChpoResult('')">
+                                    Не применимо
+                                </button>
+                            </div>
+                            <input type="hidden" id="chpoResult" name="chpoResult">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Время реагирования ЧПО (опционально)</label>
+                            <input type="text" id="chpoResponseTime" name="chpoResponseTime" placeholder="чч:мм:сс" onfocus="checkClipboard(this)">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Название ЧПО (опционально)</label>
+                            <select id="chpoName" name="chpoName">
+                                <option value="">-- Выберите --</option>
+                                <option value='ЧПО "Пожарный Центр"'>ЧПО "Пожарный Центр"</option>
+                                <option value='ЧПО "Промгазсервис"'>ЧПО "Промгазсервис"</option>
+                                <option value='ЧПО "ЮГПОЖТЕХБЕЗОПАСНОСТЬ"'>ЧПО "ЮГПОЖТЕХБЕЗОПАСНОСТЬ"</option>
+                            </select>
+                        </div>
+
+                        <!-- Common Fields -->
+                        <h3 style="color: #81d4fa; margin: 30px 0 20px 0; border-bottom: 2px solid rgba(79, 195, 247, 0.3); padding-bottom: 10px;">Дополнительная информация</h3>
+                        
+                        <div class="form-group">
+                            <label>Комментарий, фабула</label>
+                            <textarea id="activityComment" name="comment" onfocus="checkClipboard(this)"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Ссылка на материалы (опционально)</label>
+                            <input type="text" id="activityMaterialsLink" name="materialsLink" onfocus="checkClipboard(this)">
+                        </div>
+
+                        <button type="button" class="submit-button" onclick="submitActivityForm()">Сохранить и продолжить</button>
+                        <button type="button" class="finish-button" onclick="saveActivityAndFinish()">Сохранить и завершить работу</button>
+                    </form>
+
+                    <div class="success-message" id="activitySuccessMessage">
+                        ✓ Запись успешно сохранена!
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="level-container" id="level4-incidents">
+            <div class="form-container">
+                <h2 style="color: #4fc3f7; margin-bottom: 30px;">🚨 Инциденты ЧП/ЧС</h2>
+
+                <div class="check-type-selector">
+                    <h3 style="color: #e0e0e0; margin-bottom: 20px;">Выберите категорию инцидента:</h3>
+                    <div class="check-type-grid" id="incidentCategoryButtons">
+                        <button class="check-type-button" onclick="selectIncidentCategory('Инциденты (попадающие под приказ)', this)">Инциденты (попадающие под приказ)</button>
+                        <button class="check-type-button" onclick="selectIncidentCategory('Инциденты (непопадающие)', this)">Инциденты (непопадающие)</button>
+                    </div>
+                </div>
+
+                <div class="form-fields" id="incidentTypeBlock">
+                    <h3 style="color: #e0e0e0; margin-bottom: 15px;">Выберите тип инцидента:</h3>
+                    <div class="button-group" id="incidentTopTypes" style="flex-wrap: wrap;"></div>
+                    <div class="button-group" id="incidentOtherTypes" style="flex-wrap: wrap; margin-top: 10px;"></div>
+                </div>
+
+                <div class="form-fields" id="incidentForm">
+                    <form id="incidentMainForm">
+                        <div class="form-group">
+                            <label>Время инцидента</label>
+                            <input type="time" id="incidentTime" name="incidentTime">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Комментарий, фабула</label>
+                            <textarea id="incidentComment" name="incidentComment" onfocus="checkClipboard(this)"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Ссылка на материалы</label>
+                            <input type="text" id="incidentMaterialsLink" name="incidentMaterialsLink" onfocus="checkClipboard(this)">
+                        </div>
+
+                        <button type="button" class="submit-button" onclick="submitIncidentForm()">Сохранить и продолжить</button>
+                        <button type="button" class="finish-button" onclick="saveIncidentAndFinish()">Сохранить и завершить работу</button>
+                    </form>
+
+                    <div class="success-message" id="incidentSuccessMessage">
+                        ✓ Инцидент сохранён!
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="level-container" id="level4-appeals">
+            <div class="form-container">
+                <h2 style="color: #4fc3f7; margin-bottom: 30px;">📞 Обращения OJ</h2>
+
+                <div class="check-type-selector">
+                    <h3 style="color: #e0e0e0; margin-bottom: 20px;">Выберите вид обращения:</h3>
+                    <div class="appeal-type-grid">
+                        <button class="check-type-button" onclick="selectAppealType('Жалоба на допуск на объект', this)">Жалоба на допуск на объект</button>
+                        <button class="check-type-button" onclick="selectAppealType('Не корректное поведение охраны', this)">Не корректное поведение охраны</button>
+                        <button class="check-type-button" onclick="selectAppealType('Жалоба на блокировку', this)">Жалоба на блокировку</button>
+                        <button class="check-type-button appeal-button-long" onclick="selectAppealType('Жалоба на СБ', this)">Жалоба на СБ</button>
+                        <button class="check-type-button appeal-button-long" onclick="selectAppealType('Прочее', this)">Прочее</button>
+                    </div>
+                </div>
+
+                <div class="form-fields" id="appealForm">
+                    <form id="appealMainForm">
+                        <div class="form-group">
+                            <label>Результат (типовой)</label>
+                            <div class="button-group">
+                                <button type="button" class="option-button" onclick="selectAppealResult('Нарушений не выявлено', this)">Нарушений не выявлено</button>
+                                <button type="button" class="option-button" onclick="selectAppealResult('Выявлено нарушение', this)">Выявлено нарушение</button>
+                            </div>
+                            <input type="hidden" id="appealResult" name="appealResult">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Логины/ФИО</label>
+                            <input type="text" id="appealLogins" name="appealLogins" onfocus="checkClipboard(this)">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Комментарий, фабула</label>
+                            <textarea id="appealComment" name="appealComment" onfocus="checkClipboard(this)"></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label>Ссылка на тред в chatzone</label>
+                            <input type="text" id="appealThreadLink" name="appealThreadLink" onfocus="checkClipboard(this)">
+                        </div>
+
+                        <button type="button" class="submit-button" onclick="submitAppealForm()">Сохранить и продолжить</button>
+                        <button type="button" class="finish-button" onclick="saveAppealAndFinish()">Сохранить и завершить работу</button>
+                    </form>
+
+                    <div class="success-message" id="appealSuccessMessage">
+                        ✓ Обращение сохранено!
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Summary Pages -->
+        <div class="level-container" id="summary-general">
+            <div class="form-container summary-page">
+                <h2 class="summary-title">📊 Свод по РФ общий</h2>
+                <p class="summary-meta">
+                    Регион: <strong>{{state.region}}</strong> | 
+                    Тип: <strong>{{state.type}}</strong>
+                </p>
+                
+                <section class="summary-section">
+                    <div class="summary-filters-panel" id="generalSummaryFilters">
+                        <div class="summary-filters-header">
+                            <h3>Фильтры</h3>
+                            <div class="summary-filters-actions">
+                                <button type="button" class="summary-filter-reset" id="generalFiltersReset">Сбросить</button>
+                        </div>
+                        </div>
+                        <div class="summary-filters-compact">
+                            <div class="filter-row">
+                                <div class="filter-tile filter-tile--compact">
+                                    <span class="summary-filter-title">Результат</span>
+                                    <div class="summary-filter-chips" id="summaryFilter-general-results"></div>
+                                </div>
+                                <div class="filter-tile filter-tile--half">
+                                    <span class="summary-filter-title">Месяц</span>
+                                    <div class="summary-filter-chips" id="summaryFilter-general-months"></div>
+                                </div>
+                            </div>
+                            <div class="filter-row filter-row--dual">
+                                <div class="filter-tile filter-tile--half">
+                                    <span class="summary-filter-title">Неделя</span>
+                                    <div class="summary-filter-chips" id="summaryFilter-general-weeks"></div>
+                                </div>
+                                <div class="filter-tile filter-tile--half">
+                                    <span class="summary-filter-title">Дата</span>
+                                    <div class="summary-filter-chips" id="summaryFilter-general-dates"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="summary-section">
+                    <h3>Итоги по расследованиям</h3>
+                    <div class="summary-chart-card">
+                        <canvas id="generalInvestigationsChart"></canvas>
+                        </div>
+                    <div class="summary-table-wrapper">
+                        <div id="generalInvestigationsSummary" class="summary-table-placeholder">Загрузка данных...</div>
+                    </div>
+                </section>
+
+                <section class="summary-section">
+                    <h3>Итоги по инцидентам</h3>
+                    <div class="summary-chart-card">
+                        <canvas id="generalIncidentsChart"></canvas>
+                        </div>
+                    <div class="summary-table-wrapper">
+                        <div id="generalIncidentsSummary" class="summary-table-placeholder">Нет данных для отображения</div>
+                    </div>
+                </section>
+
+                <section class="summary-section">
+                    <h3>Итоги по мероприятиям СБ-ЧОП</h3>
+                    <div class="summary-chart-card">
+                        <canvas id="generalActivitiesChart"></canvas>
+                        </div>
+                    <div class="summary-table-wrapper">
+                        <div id="generalActivitiesSummary" class="summary-table-placeholder">Нет данных для отображения</div>
+                    </div>
+                </section>
+
+                <section class="summary-section">
+                    <h3>Итоги по обращениям OJ</h3>
+                    <div class="summary-chart-card">
+                        <canvas id="generalAppealsChart"></canvas>
+                        </div>
+                    <div class="summary-table-wrapper">
+                        <div id="generalAppealsSummary" class="summary-table-placeholder">Нет данных для отображения</div>
+                    </div>
+                </section>
+
+                <div class="summary-nav summary-nav-bottom">
+                    <button type="button" class="summary-nav-button" onclick="openSummary('months')">📅 Динамика по месяцам</button>
+                    <button type="button" class="summary-nav-button" onclick="openSummary('weeks')">📆 Динамика по неделям</button>
+                        </div>
+                    </div>
+                </div>
+
+        <div class="level-container" id="summary-region">
+            <div class="form-container summary-page">
+                <h2 class="summary-title">📊 Свод по региону</h2>
+                <p class="summary-meta">
+                    Регион: <strong>{{state.region}}</strong> | 
+                    Тип: <strong>{{state.type}}</strong>
+                </p>
+
+                <section class="summary-section">
+                    <div class="summary-filters-panel" id="regionSummaryFilters">
+                    <div class="summary-filters-header">
+                        <h3>Фильтры</h3>
+                        <div class="summary-filters-actions">
+                                <button type="button" class="summary-filter-reset" id="regionFiltersReset">Сбросить</button>
+                        </div>
+                    </div>
+                    <div class="summary-filters-compact">
+                        <div class="filter-row">
+                            <div class="filter-tile filter-tile--compact">
+                                <span class="summary-filter-title">Результат</span>
+                                <div class="summary-filter-chips" id="summaryFilter-region-results"></div>
+                            </div>
+                            <div class="filter-tile filter-tile--half">
+                                <span class="summary-filter-title">Месяц</span>
+                                <div class="summary-filter-chips" id="summaryFilter-region-months"></div>
+                            </div>
+                        </div>
+                        <div class="filter-row filter-row--dual">
+                            <div class="filter-tile filter-tile--half">
+                                <span class="summary-filter-title">Неделя</span>
+                                <div class="summary-filter-chips" id="summaryFilter-region-weeks"></div>
+                            </div>
+                            <div class="filter-tile filter-tile--half">
+                                <span class="summary-filter-title">Дата</span>
+                                <div class="summary-filter-chips" id="summaryFilter-region-dates"></div>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                </section>
+
+                <section class="summary-section">
+                    <h3>Итоги по расследованиям</h3>
+                    <div class="summary-chart-card">
+                        <canvas id="regionInvestigationsChart"></canvas>
+                    </div>
+                    <div class="summary-table-wrapper">
+                        <div id="regionInvestigationsSummary" class="summary-table-placeholder">Загрузка данных...</div>
+                    </div>
+                </section>
+
+                <section class="summary-section">
+                    <h3>Итоги по инцидентам</h3>
+                    <div class="summary-chart-card">
+                        <canvas id="regionIncidentsChart"></canvas>
+                    </div>
+                    <div class="summary-table-wrapper">
+                        <div id="regionIncidentsSummary" class="summary-table-placeholder">Нет данных для отображения</div>
+                    </div>
+                </section>
+
+                <section class="summary-section">
+                    <h3>Итоги по мероприятиям СБ-ЧОП</h3>
+                    <div class="summary-chart-card">
+                        <canvas id="regionActivitiesChart"></canvas>
+                    </div>
+                    <div class="summary-table-wrapper">
+                        <div id="regionActivitiesSummary" class="summary-table-placeholder">Нет данных для отображения</div>
+                    </div>
+                </section>
+
+                <section class="summary-section">
+                    <h3>Итоги по обращениям OJ</h3>
+                    <div class="summary-chart-card">
+                        <canvas id="regionAppealsChart"></canvas>
+                    </div>
+                    <div class="summary-table-wrapper">
+                        <div id="regionAppealsSummary" class="summary-table-placeholder">Нет данных для отображения</div>
+                    </div>
+                </section>
+
+                <div class="summary-nav summary-nav-bottom">
+                    <button type="button" class="summary-nav-button" onclick="openSummary('months')">📅 Динамика по месяцам</button>
+                    <button type="button" class="summary-nav-button" onclick="openSummary('weeks')">📆 Динамика по неделям</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="level-container" id="summary-type">
+            <div class="form-container summary-page">
+                <h2 class="summary-title">📊 Свод по типу склада</h2>
+                <p class="summary-meta">
+                    Регион: <strong>{{state.region}}</strong> | 
+                    Тип: <strong>{{state.type}}</strong> |
+                    Склад: <strong>{{state.warehouse || '—'}}</strong>
+                </p>
+
+                <section class="summary-section">
+                    <div class="summary-filters-panel" id="typeSummaryFilters">
+                        <div class="summary-filters-header">
+                            <h3>Фильтры</h3>
+                            <div class="summary-filters-actions">
+                                <button type="button" class="summary-filter-reset" id="typeFiltersReset">Сбросить</button>
+                            </div>
+                        </div>
+                        <div class="summary-filters-compact">
+                            <div class="filter-row">
+                                <div class="filter-tile filter-tile--compact">
+                                    <span class="summary-filter-title">Результат</span>
+                                    <div class="summary-filter-chips" id="summaryFilter-type-results"></div>
+                                </div>
+                                <div class="filter-tile filter-tile--half">
+                                    <span class="summary-filter-title">Месяц</span>
+                                    <div class="summary-filter-chips" id="summaryFilter-type-months"></div>
+                                </div>
+                            </div>
+                            <div class="filter-row filter-row--dual">
+                                <div class="filter-tile filter-tile--half">
+                                    <span class="summary-filter-title">Неделя</span>
+                                    <div class="summary-filter-chips" id="summaryFilter-type-weeks"></div>
+                                </div>
+                                <div class="filter-tile filter-tile--half">
+                                    <span class="summary-filter-title">Дата</span>
+                                    <div class="summary-filter-chips" id="summaryFilter-type-dates"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="summary-section">
+                    <h3>Итоги по расследованиям</h3>
+                    <div class="summary-chart-card">
+                        <canvas id="typeInvestigationsChart"></canvas>
+                    </div>
+                    <div class="summary-table-wrapper">
+                        <div id="typeInvestigationsSummary" class="summary-table-placeholder">Загрузка данных...</div>
+                </div>
+                </section>
+
+                <section class="summary-section">
+                    <h3>Итоги по инцидентам</h3>
+                    <div class="summary-chart-card">
+                        <canvas id="typeIncidentsChart"></canvas>
+                </div>
+                    <div class="summary-table-wrapper">
+                        <div id="typeIncidentsSummary" class="summary-table-placeholder">Нет данных для отображения</div>
+                    </div>
+                </section>
+
+                <section class="summary-section">
+                    <h3>Итоги по мероприятиям СБ-ЧОП</h3>
+                    <div class="summary-chart-card">
+                        <canvas id="typeActivitiesChart"></canvas>
+                </div>
+                    <div class="summary-table-wrapper">
+                        <div id="typeActivitiesSummary" class="summary-table-placeholder">Нет данных для отображения</div>
+                    </div>
+                </section>
+
+                <section class="summary-section">
+                    <h3>Итоги по обращениям OJ</h3>
+                    <div class="summary-chart-card">
+                        <canvas id="typeAppealsChart"></canvas>
+                </div>
+                    <div class="summary-table-wrapper">
+                        <div id="typeAppealsSummary" class="summary-table-placeholder">Нет данных для отображения</div>
+                    </div>
+                </section>
+
+                <div class="summary-nav summary-nav-bottom">
+                    <button type="button" class="summary-nav-button" onclick="openSummary('months')">📅 Динамика по месяцам</button>
+                    <button type="button" class="summary-nav-button" onclick="openSummary('weeks')">📆 Динамика по неделям</button>
+                    <button type="button" class="summary-nav-button" onclick="openSummary('object')">📊 Свод по объекту</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="level-container" id="summary-object">
+            <div class="form-container summary-page">
+                <h2 class="summary-title">📈 Свод по объекту</h2>
+                <p class="summary-meta">
+                    Регион: <strong>{{state.region}}</strong> | 
+                    Тип: <strong>{{state.type}}</strong> | 
+                    Склад: <strong>{{state.warehouse || '—'}}</strong> | 
+                    Дата: <strong>{{state.selectedDate || '—'}}</strong>
+                </p>
+
+                <section class="summary-section">
+                    <div class="summary-filters-panel" id="objectSummaryFilters">
+                        <div class="summary-filters-header">
+                            <h3>Фильтры</h3>
+                            <div class="summary-filters-actions">
+                                <button type="button" class="summary-filter-reset" id="objectFiltersReset">Сбросить</button>
+                    </div>
+                </div>
+                        <div class="summary-filters-compact">
+                            <div class="filter-row">
+                                <div class="filter-tile filter-tile--compact">
+                                    <span class="summary-filter-title">Результат</span>
+                                    <div class="summary-filter-chips" id="summaryFilter-object-results"></div>
+                                </div>
+                                <div class="filter-tile filter-tile--half">
+                                    <span class="summary-filter-title">Месяц</span>
+                                    <div class="summary-filter-chips" id="summaryFilter-object-months"></div>
+                                </div>
+                            </div>
+                            <div class="filter-row filter-row--dual">
+                                <div class="filter-tile filter-tile--half">
+                                    <span class="summary-filter-title">Неделя</span>
+                                    <div class="summary-filter-chips" id="summaryFilter-object-weeks"></div>
+                                </div>
+                                <div class="filter-tile filter-tile--half">
+                                    <span class="summary-filter-title">Дата</span>
+                                    <div class="summary-filter-chips" id="summaryFilter-object-dates"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="summary-section">
+                    <h3>Итоги по расследованиям</h3>
+                    <div class="summary-chart-card">
+                        <canvas id="objectInvestigationsChart"></canvas>
+                </div>
+                    <div class="summary-table-wrapper">
+                        <div id="objectBreakdown">Загрузка данных...</div>
+                </div>
+                </section>
+
+                <section class="summary-section">
+                    <h3>Инциденты ЧП/ЧС по складам</h3>
+                    <div class="summary-table-wrapper">
+                        <div id="incidentsObjectSummary">Нет данных для отображения</div>
+                </div>
+                </section>
+
+                <section class="summary-section">
+                    <h3>Мероприятия СБ-ЧОП по складам</h3>
+                    <div class="summary-table-wrapper">
+                        <div id="activitiesObjectSummary">Нет данных для отображения</div>
+                </div>
+                </section>
+
+                <section class="summary-section">
+                    <h3>Обращения OJ по складам</h3>
+                    <div class="summary-table-wrapper">
+                        <div id="appealsObjectSummary">Нет данных для отображения</div>
+                </div>
+                </section>
+
+                <div class="summary-nav summary-nav-bottom">
+                    <button type="button" class="summary-nav-button" onclick="openSummary('months')">📅 Динамика по месяцам</button>
+                    <button type="button" class="summary-nav-button" onclick="openSummary('weeks')">📆 Динамика по неделям</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="level-container" id="summary-months">
+            <div class="form-container summary-page">
+                <h2 class="summary-title">📅 Динамика по месяцам</h2>
+                <p class="summary-meta">
+                    Регион: <strong>{{state.region}}</strong> | 
+                    Тип: <strong>{{state.type}}</strong> | 
+                    Склад: <strong>{{state.warehouse || '—'}}</strong>
+                </p>
+
+                <section class="summary-section">
+                    <div class="summary-filters-panel" id="monthsSummaryFilters">
+                        <div class="summary-filters-header">
+                            <h3>Фильтры</h3>
+                            <div class="summary-filters-actions">
+                                <button type="button" class="summary-filter-reset" id="monthsFiltersReset">Сбросить</button>
+                </div>
+                </div>
+                        <div class="summary-filters-compact">
+                            <div class="filter-row">
+                                <div class="filter-tile filter-tile--compact">
+                                    <span class="summary-filter-title">Результат</span>
+                                    <div class="summary-filter-chips" id="summaryFilter-months-results"></div>
+                                </div>
+                                <div class="filter-tile filter-tile--half">
+                                    <span class="summary-filter-title">Месяц</span>
+                                    <div class="summary-filter-chips" id="summaryFilter-months-months"></div>
+                                </div>
+                            </div>
+                            <div class="filter-row filter-row--dual">
+                                <div class="filter-tile filter-tile--half">
+                                    <span class="summary-filter-title">Неделя</span>
+                                    <div class="summary-filter-chips" id="summaryFilter-months-weeks"></div>
+                                </div>
+                                <div class="filter-tile filter-tile--half">
+                                    <span class="summary-filter-title">Дата</span>
+                                    <div class="summary-filter-chips" id="summaryFilter-months-dates"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="summary-section">
+                    <h3>Динамика по месяцам</h3>
+                    <div class="summary-chart-card">
+                        <canvas id="monthsChart"></canvas>
+                </div>
+                </section>
+
+                <section class="summary-section">
+                    <h3>Инциденты ЧП/ЧС по месяцам</h3>
+                    <div class="summary-table-wrapper">
+                        <div id="incidentsMonthsSummary">Нет данных для отображения</div>
+                </div>
+                </section>
+
+                <section class="summary-section">
+                    <h3>Мероприятия СБ-ЧОП по месяцам</h3>
+                    <div class="summary-table-wrapper">
+                        <div id="activitiesMonthsSummary">Нет данных для отображения</div>
+                </div>
+                </section>
+
+                <section class="summary-section">
+                    <h3>Обращения OJ по месяцам</h3>
+                    <div class="summary-table-wrapper">
+                        <div id="appealsMonthsSummary">Нет данных для отображения</div>
+                    </div>
+                </section>
+            </div>
+        </div>
+
+        <div class="level-container" id="summary-weeks">
+            <div class="form-container summary-page">
+                <h2 class="summary-title">📆 Динамика по неделям</h2>
+                <p class="summary-meta">
+                    Регион: <strong>{{state.region}}</strong> | 
+                    Тип: <strong>{{state.type}}</strong> | 
+                    Склад: <strong>{{state.warehouse || '—'}}</strong>
+                </p>
+
+                <section class="summary-section">
+                    <div class="summary-filters-panel" id="weeksSummaryFilters">
+                        <div class="summary-filters-header">
+                            <h3>Фильтры</h3>
+                            <div class="summary-filters-actions">
+                                <button type="button" class="summary-filter-reset" id="weeksFiltersReset">Сбросить</button>
+                </div>
+                        </div>
+                        <div class="summary-filters-compact">
+                            <div class="filter-row">
+                                <div class="filter-tile filter-tile--compact">
+                                    <span class="summary-filter-title">Результат</span>
+                                    <div class="summary-filter-chips" id="summaryFilter-weeks-results"></div>
+                                </div>
+                                <div class="filter-tile filter-tile--half">
+                                    <span class="summary-filter-title">Месяц</span>
+                                    <div class="summary-filter-chips" id="summaryFilter-weeks-months"></div>
+                                </div>
+                            </div>
+                            <div class="filter-row filter-row--dual">
+                                <div class="filter-tile filter-tile--half">
+                                    <span class="summary-filter-title">Неделя</span>
+                                    <div class="summary-filter-chips" id="summaryFilter-weeks-weeks"></div>
+                                </div>
+                                <div class="filter-tile filter-tile--half">
+                                    <span class="summary-filter-title">Дата</span>
+                                    <div class="summary-filter-chips" id="summaryFilter-weeks-dates"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="summary-section">
+                    <h3>Динамика по неделям</h3>
+                    <div class="summary-chart-card">
+                        <canvas id="weeksChart"></canvas>
+                </div>
+                </section>
+
+                <section class="summary-section">
+                    <h3>Инциденты ЧП/ЧС по неделям</h3>
+                    <div class="summary-table-wrapper">
+                        <div id="incidentsWeeksSummary">Нет данных для отображения</div>
+                </div>
+                </section>
+
+                <section class="summary-section">
+                    <h3>Мероприятия СБ-ЧОП по неделям</h3>
+                    <div class="summary-table-wrapper">
+                        <div id="activitiesWeeksSummary">Нет данных для отображения</div>
+                </div>
+                </section>
+
+                <section class="summary-section">
+                    <h3>Обращения OJ по неделям</h3>
+                    <div class="summary-table-wrapper">
+                        <div id="appealsWeeksSummary">Нет данных для отображения</div>
+                    </div>
+                </section>
+            </div>
+        </div>
+    </div>
+
+    <script src="assets/js/main.js"></script>
+    <script>
+        (function () {
+            const BG_LEVELS = new Set([1, 2]);
+
+            function applyBackground(level) {
+                const body = document.body;
+                if (BG_LEVELS.has(level)) {
+                    body.classList.add('background-fon');
+                    body.classList.remove('background-fon2');
+            } else {
+                    body.classList.add('background-fon2');
+                    body.classList.remove('background-fon');
+                }
+            }
+
+            const originalGoToLevel = window.goToLevel;
+            window.goToLevel = function (level) {
+                originalGoToLevel(level);
+                applyBackground(level);
+            };
+
+            const DATASET_CONFIG = { year: 2025, month: 8, sampleDays: [1, 7, 14, 21, 28] };
+            const INVESTIGATION_TYPES = [
+                'ФРОД',
+                'Подмены',
+                'MPCRM + Торг 2',
+                'Puzzle',
+                'Инвент (СЦ)',
+                'NF',
+                'КРАЖА',
+                'POSS',
+                'AFF',
+                'Проверка C2C',
+                'RTRNS',
+                'FIN (Потери Основных средств)',
+                'Расследование HL (compliance)',
+                'Контроль утилизации, реализации (только аномалии)',
+                'Проверка годовой инвентаризации (ФФ)',
+                'Проверка расходных материалов',
+                'Другое крупное расследование'
+            ];
+            const INVESTIGATION_RESULTS = ['Нарушений не выявлено', 'Выявлено нарушение'];
+            const ACTIVITY_TYPES = [
+                'ППР (Код 1000, Маяк и др)',
+                'Контрольный вынос',
+                'Код Холод',
+                'Код 99',
+                'Код 050',
+                'Удалённый мониторинг',
+                'Ночная проверка',
+                'Код 100',
+                'Код 500',
+                'Проверка мест проживания ЧОП'
+            ];
+            const ACTIVITY_KINDS = ['Реальная', 'Тренировка'];
+            const CHOP_RESULTS = ['Удовлетворительно', 'Неудовлетворительно'];
+            const CHPO_RESULTS = ['Удовлетворительно', 'Неудовлетворительно', 'Не применимо'];
+            const APPEAL_RESULTS = ['Нарушений не выявлено', 'Выявлено нарушение'];
+            const APPEAL_TYPES = [...appealTypeConfig.topTypes, ...appealTypeConfig.otherTypes];
+            const INCIDENT_CATEGORIES = Object.entries(incidentCategoryConfig);
+
+            function pad(value) {
+                return String(value).padStart(2, '0');
+            }
+
+            function randomFromArray(array) {
+                if (!Array.isArray(array) || !array.length) {
+                    return null;
+                }
+                const index = Math.floor(Math.random() * array.length);
+                return array[index];
+            }
+
+            function generateRecentIncidents() {
+                const incidents = [];
+                const today = new Date();
+                const minDate = new Date('2025-01-01');
+                const regionKeys = Object.keys(warehouses);
+
+                for (let offset = 0; offset < 14; offset++) {
+                    const date = new Date(today);
+                    date.setDate(today.getDate() - offset);
+                    if (date < minDate) {
+                        break;
+                    }
+
+                    const region = randomFromArray(regionKeys);
+                    if (!region) {
+                        continue;
+                    }
+
+                    const typeKeys = Object.keys(warehouses[region] || {});
+                    const type = randomFromArray(typeKeys);
+                    if (!type) {
+                        continue;
+                    }
+
+                    const warehouseList = warehouses[region][type] || [];
+                    const warehouse = randomFromArray(warehouseList) || `${region} (нет склада)`;
+
+                    const categoryEntry = randomFromArray(INCIDENT_CATEGORIES);
+                    if (!categoryEntry) {
+                        continue;
+                    }
+                    const [categoryName, categoryConfig] = categoryEntry;
+                    const incidentTypeList = [
+                        ...(categoryConfig.topTypes || []),
+                        ...(categoryConfig.otherTypes || [])
+                    ];
+                    const incidentType = randomFromArray(incidentTypeList) || 'Инцидент';
+
+                    const hour = pad(8 + Math.floor(Math.random() * 10));
+                    const minute = pad(Math.floor(Math.random() * 60));
+                    const isoDate = date.toISOString().split('T')[0];
+
+                    incidents.push({
+                        region,
+                        type,
+                        warehouse,
+                        date: isoDate,
+                        category: categoryName,
+                        incidentType,
+                        incidentTime: `${hour}:${minute}`,
+                        comment: `Инцидент: ${incidentType.toLowerCase()}`,
+                        materialsLink: `https://test.o3t.ru/incidents/${region}-${type}-${isoDate}`,
+                        timestamp: `${isoDate}T${hour}:${minute}:00`
+                    });
+                }
+
+                return incidents;
+            }
+
+            function seededRandom(seed) {
+                const x = Math.sin(seed) * 10000;
+                return x - Math.floor(x);
+            }
+
+            function getDatasetDates(config) {
+                const dates = [];
+                const daysInMonth = new Date(Date.UTC(config.year, config.month + 1, 0)).getUTCDate();
+                config.sampleDays.forEach(day => {
+                    const safeDay = Math.min(day, daysInMonth);
+                    const iso = new Date(Date.UTC(config.year, config.month, safeDay)).toISOString().split('T')[0];
+                    if (!dates.includes(iso)) {
+                        dates.push(iso);
+                    }
+                });
+                return dates;
+            }
+
+            function buildGeneratedData() {
+                const investigations = [];
+                const activities = [];
+                const appeals = [];
+
+                const dates = getDatasetDates(DATASET_CONFIG);
+
+                Object.keys(warehouses).forEach((region, regionIndex) => {
+                    const typeMap = warehouses[region];
+                    Object.keys(typeMap).forEach((typeKey, typeIndex) => {
+                        const warehouseList = typeMap[typeKey] || [];
+
+                        warehouseList.forEach((warehouse, warehouseIndex) => {
+                            dates.forEach((dateStr, dateIndex) => {
+                                const baseSeed = regionIndex * 100000 + typeIndex * 10000 + warehouseIndex * 100 + dateIndex;
+
+                                const checkType = INVESTIGATION_TYPES[baseSeed % INVESTIGATION_TYPES.length];
+                                const investigationResult = INVESTIGATION_RESULTS[baseSeed % INVESTIGATION_RESULTS.length];
+                                const worked = Number((35000 + seededRandom(baseSeed) * 90000).toFixed(2));
+                                const detected = Number((9000 + seededRandom(baseSeed + 1) * 40000).toFixed(2));
+                                const returned = Number(Math.min(detected, 3000 + seededRandom(baseSeed + 2) * detected).toFixed(2));
+                                const violator = violatorTypes[baseSeed % violatorTypes.length];
+
+                                investigations.push({
+                                    region,
+                                    type: typeKey,
+                                    warehouse,
+                                    date: dateStr,
+                                    checkType,
+                                    result: investigationResult,
+                                    identifiers: `https://test.o3t.ru/cases/${baseSeed}`,
+                                    productName: `Тестовый товар #${8000 + baseSeed}`,
+                                    sumWorked: worked,
+                                    sumDetected: detected,
+                                    sumReturned: returned,
+                                    comment: `Тестовая отработка по сценарию ${checkType}`,
+                                    timestamp: `${dateStr}T${pad(8 + (baseSeed % 10))}:00:00`,
+                                    violator,
+                                    violatorInfo: `${violator.toLowerCase()}_${baseSeed}`,
+                                    materialsLink: `https://test.o3t.ru/materials/${baseSeed}`
+                                });
+
+                                const activityType = ACTIVITY_TYPES[baseSeed % ACTIVITY_TYPES.length];
+                                const activityKind = ACTIVITY_KINDS[baseSeed % ACTIVITY_KINDS.length];
+                                const chopResult = CHOP_RESULTS[baseSeed % CHOP_RESULTS.length];
+                                const chpoResult = CHPO_RESULTS[baseSeed % CHPO_RESULTS.length];
+                                const chopResponse = `${pad(0)}:${pad(4 + (baseSeed % 6))}:${pad((baseSeed * 3) % 60)}`;
+                                const chpoResponse = chpoResult === 'Не применимо' ? '' : `${pad(0)}:${pad(6 + (baseSeed % 5))}:${pad((baseSeed * 5) % 60)}`;
+
+                                activities.push({
+                                    region,
+                                    type: typeKey,
+                                    warehouse,
+                                    date: dateStr,
+            period: 'week',
+                                    activityType,
+                                    kind: activityKind,
+                                    chopResult,
+                                    chopResponseTime: chopResponse,
+                                    chopName: `ЧОП «Регион-${regionIndex + 1}»`,
+                                    chpoResult,
+                                    chpoResponseTime: chpoResponse,
+                                    chpoName: chpoResult === 'Не применимо' ? '' : `ЧПО «${(baseSeed % 3) + 1}»`,
+                                    comment: `Тестовая активность: ${activityType}`,
+                                    materialsLink: `https://test.o3t.ru/activities/${baseSeed}`,
+                                    timestamp: `${dateStr}T${pad(7 + (baseSeed % 9))}:30:00`
+                                });
+
+                                const appealType = APPEAL_TYPES[baseSeed % APPEAL_TYPES.length];
+                                const appealResult = APPEAL_RESULTS[baseSeed % APPEAL_RESULTS.length];
+
+                                appeals.push({
+                                    region,
+                                    type: typeKey,
+                                    warehouse,
+                                    date: dateStr,
+                                    appealType,
+                                    result: appealResult,
+                                    logins: `user_${baseSeed}@corp.ru, manager_${baseSeed % 47}@corp.ru`,
+                                    comment: `Тестовое обращение по теме: ${appealType.toLowerCase()}`,
+                                    threadLink: `https://chat.test/o3t/${baseSeed}`,
+                                    timestamp: `${dateStr}T${pad(10 + (baseSeed % 8))}:15:00`
+                                });
+                            });
+                        });
+                    });
+                });
+
+                const incidents = generateRecentIncidents();
+
+                return {
+                    investigations,
+                    incidents,
+                    activities,
+                    appeals
+                };
+            }
+
+            const generatedData = buildGeneratedData();
+
+            function getDatasets() {
+                return {
+                    investigations: JSON.parse(localStorage.getItem('investigations') || '[]'),
+                    incidents: JSON.parse(localStorage.getItem('sb_incidents') || '[]'),
+                    activities: JSON.parse(localStorage.getItem('sb_activities') || '[]'),
+                    appeals: JSON.parse(localStorage.getItem('sb_appeals') || '[]')
+                };
+            }
+
+            function formatCurrency(value) {
+                return Number(value || 0).toLocaleString('ru-RU', {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2
+                }) + ' ₽';
+            }
+
+            function itemMatchesFilters(item, filters = {}) {
+                if (!item) {
+                    return false;
+                }
+                if (filters.region && item.region !== filters.region) {
+                    return false;
+                }
+                if (filters.type && item.type !== filters.type) {
+                    return false;
+                }
+                if (filters.warehouse && item.warehouse !== filters.warehouse) {
+                    return false;
+                }
+                if (filters.date) {
+                    const rawDate = item.date || (item.timestamp ? String(item.timestamp).split('T')[0] : '');
+                    if (rawDate !== filters.date) {
+                        return false;
+                    }
+                }
+                return true;
+            }
+
+            function summarizeInvestigations(data) {
+                const worked = data.reduce((sum, inv) => sum + Number(inv.sumWorked || 0), 0);
+                const detected = data.reduce((sum, inv) => sum + Number(inv.sumDetected || 0), 0);
+                const returned = data.reduce((sum, inv) => sum + Number(inv.sumReturned || 0), 0);
+                const delta = detected - returned;
+                const percentReturned = detected > 0 ? (returned / detected) * 100 : 0;
+
+                return {
+                    count: data.length,
+                    worked,
+                    detected,
+                    returned,
+                    delta,
+                    percentReturned
+                };
+            }
+
+            function updateInvestigationCards(prefix, data) {
+                const stats = summarizeInvestigations(data);
+                const totalElement = document.getElementById(`${prefix}TotalInvestigations`);
+                if (!totalElement) {
+                    return;
+                }
+
+                totalElement.textContent = stats.count.toLocaleString('ru-RU');
+
+                const workedElement = document.getElementById(`${prefix}TotalWorked`);
+                const detectedElement = document.getElementById(`${prefix}TotalDetected`);
+                const returnedElement = document.getElementById(`${prefix}TotalReturned`);
+                const deltaElement = document.getElementById(`${prefix}TotalDelta`);
+                const percentElement = document.getElementById(`${prefix}PercentReturned`);
+
+                if (workedElement) workedElement.textContent = formatCurrency(stats.worked);
+                if (detectedElement) detectedElement.textContent = formatCurrency(stats.detected);
+                if (returnedElement) returnedElement.textContent = formatCurrency(stats.returned);
+                if (deltaElement) deltaElement.textContent = formatCurrency(stats.delta);
+                if (percentElement) percentElement.textContent = `${stats.percentReturned.toFixed(1)}%`;
+            }
+
+            function updateIncidentDashboard({
+                tableBodyId,
+                totalId,
+                filters = {},
+                category = 'Инциденты (попадающие под приказ)',
+                dimension = 'region',
+                emptyMessage = 'Инцидентов не зарегистрировано'
+            }, datasets) {
+                const tableBody = document.getElementById(tableBodyId);
+                const totalElement = document.getElementById(totalId);
+                if (!tableBody || !totalElement) {
+                    return;
+                }
+
+                const source = datasets || getDatasets();
+                const filtered = source.incidents
+                    .filter(item => item && item.category === category)
+                    .filter(item => itemMatchesFilters(item, filters));
+
+                totalElement.textContent = filtered.length.toLocaleString('ru-RU');
+
+                if (!filtered.length) {
+                    tableBody.innerHTML = `<tr><td colspan="3" class="empty">${emptyMessage}</td></tr>`;
+                    return;
+                }
+
+                const statsMap = new Map();
+                filtered.forEach(item => {
+                    const type = item.incidentType || 'Не указано';
+                    if (!statsMap.has(type)) {
+                        statsMap.set(type, { count: 0, targets: new Set() });
+                    }
+                    const entry = statsMap.get(type);
+                    entry.count += 1;
+                    const dimensionKey = dimension === 'warehouse' ? item.warehouse : item.region;
+                    if (dimensionKey) {
+                        entry.targets.add(String(dimensionKey));
+                    }
+                });
+
+                const rows = Array.from(statsMap.entries())
+                    .sort((a, b) => {
+                        if (b[1].count !== a[1].count) {
+                            return b[1].count - a[1].count;
+                        }
+                        return a[0].localeCompare(b[0], 'ru');
+                    })
+                    .map(([type, info]) => {
+                        const targets = Array.from(info.targets).sort((a, b) => a.localeCompare(b, 'ru'));
+                        const targetsText = targets.length ? targets.join(', ') : '—';
+                        return `
+                            <tr>
+                                <td>${type}</td>
+                                <td>${info.count.toLocaleString('ru-RU')}</td>
+                                <td>${targetsText}</td>
+                            </tr>
+                        `;
+                    })
+                    .join('');
+
+                tableBody.innerHTML = rows;
+            }
+
+            function updateRegionDashboards(existingDatasets) {
+                const container = document.getElementById('regionDashboards');
+                if (!container) {
+                    return;
+                }
+
+                if (!state.region || state.type) {
+                    if (state.type) {
+                        container.style.display = 'none';
+                    }
+                    return;
+                }
+
+                const datasets = existingDatasets || getDatasets();
+                const filters = { region: state.region };
+
+                const filteredInvestigations = datasets.investigations.filter(item => itemMatchesFilters(item, filters));
+                updateInvestigationCards('region', filteredInvestigations);
+
+                const label = state.region;
+                const contextLabel = document.getElementById('regionContextLabel');
+                const incidentLabel = document.getElementById('regionIncidentLabel');
+                if (contextLabel) contextLabel.textContent = label;
+                if (incidentLabel) incidentLabel.textContent = label;
+
+                updateIncidentDashboard({
+                    tableBodyId: 'regionIncidentTable',
+                    totalId: 'regionIncidentTotal',
+                    filters,
+                    dimension: 'warehouse'
+                }, datasets);
+
+                container.style.display = 'grid';
+            }
+
+            function updateTypeDashboards(existingDatasets) {
+                const container = document.getElementById('typeDashboards');
+                if (!container) {
+                    return;
+                }
+
+                if (!state.region || !state.type) {
+                    container.style.display = 'none';
+                    return;
+                }
+
+                const datasets = existingDatasets || getDatasets();
+                const filters = { region: state.region, type: state.type };
+
+                const filteredInvestigations = datasets.investigations.filter(item => itemMatchesFilters(item, filters));
+                updateInvestigationCards('type', filteredInvestigations);
+
+                const label = `${state.type} ${state.region}`;
+                const contextLabel = document.getElementById('typeContextLabel');
+                const incidentLabel = document.getElementById('typeIncidentLabel');
+                if (contextLabel) contextLabel.textContent = label;
+                if (incidentLabel) incidentLabel.textContent = label;
+
+                updateIncidentDashboard({
+                    tableBodyId: 'typeIncidentTable',
+                    totalId: 'typeIncidentTotal',
+                    filters,
+                    dimension: 'warehouse'
+                }, datasets);
+
+                container.style.display = 'grid';
+            }
+
+            function updateRegionAndTypeDashboards(datasets) {
+                updateRegionDashboards(datasets);
+                if (state.region && state.type) {
+                    updateTypeDashboards(datasets);
+                }
+            }
+
+            function updateGlobalDashboards() {
+                const datasets = getDatasets();
+                updateInvestigationCards('global', datasets.investigations);
+                updateIncidentDashboard({
+                    tableBodyId: 'globalIncidentTable',
+                    totalId: 'globalIncidentTotal',
+                    filters: {},
+                    dimension: 'region'
+                }, datasets);
+
+                updateRegionAndTypeDashboards(datasets);
+            }
+
+            window.updateTypeDashboards = updateTypeDashboards;
+            window.updateRegionDashboards = updateRegionDashboards;
+            window.updateGlobalDashboards = updateGlobalDashboards;
+
+            function writeGeneratedData(showMessage) {
+                localStorage.setItem('investigations', JSON.stringify(generatedData.investigations));
+                localStorage.setItem('sb_incidents', JSON.stringify(generatedData.incidents));
+                localStorage.setItem('sb_activities', JSON.stringify(generatedData.activities));
+                localStorage.setItem('sb_appeals', JSON.stringify(generatedData.appeals));
+
+                const summary = [
+                    `✓ Расследований: ${generatedData.investigations.length}`,
+                    `✓ Инцидентов: ${generatedData.incidents.length}`,
+                    `✓ Мероприятий: ${generatedData.activities.length}`,
+                    `✓ Обращений: ${generatedData.appeals.length}`
+                ];
+                summary.forEach(line => console.log(line));
+
+                updateGlobalDashboards();
+
+                if (showMessage) {
+                    alert('✓ Загружены тестовые данные за сентябрь 2025 по всем направлениям\n' + summary.join('\n'));
+                }
+            }
+
+            window.initializeTestData = function () {
+                writeGeneratedData(false);
+            };
+
+            window.resetTestData = function () {
+                if (confirm('Это удалит текущие данные и заново загрузит тестовый месяц по всем направлениям. Продолжить?')) {
+                    writeGeneratedData(true);
+                }
+            };
+
+            writeGeneratedData(false);
+            applyBackground(1);
+
+            // Initialize custom filter button clicks
+            document.addEventListener('click', (e) => {
+                if (e.target.matches('.filter-chip[data-filter]')) {
+                    const filterKey = e.target.dataset.filter;
+                    const filterValue = e.target.dataset.value;
+                    const summaryType = activeSummaryType || 'general';
+                    
+                    if (filterKey && filterValue) {
+                        toggleSummaryFilterValue(summaryType, filterKey, filterValue);
+                        e.target.classList.toggle('active');
+                    }
+                }
+            });
+
+            const SUMMARY_FILTER_KEYS = ['regions', 'types', 'warehouses', 'checkTypes', 'results', 'months', 'weeks', 'dates'];
+            const SUMMARY_MONTH_NAMES = ['Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь', 'Июль', 'Август', 'Сентябрь', 'Октябрь', 'Ноябрь', 'Декабрь'];
+            const SUMMARY_TYPE_OPTIONS = ['FullFilment', 'Логистика'];
+            const SUMMARY_TYPES = ['general', 'region', 'type', 'object', 'months', 'weeks'];
+
+            function createEmptySummaryFilterState() {
+                return {
+                    regions: [],
+                    types: [],
+                    warehouses: [],
+                    checkTypes: [],
+                    results: [],
+                    months: [],
+                    weeks: [],
+                    dates: []
+                };
+            }
+
+            const summaryFiltersState = {};
+            const summaryFiltersInitialized = {};
+            const summaryFiltersContext = {};
+            const summaryFiltersPagination = {};
+            const summaryResetBound = {};
+
+            SUMMARY_TYPES.forEach(type => {
+                summaryFiltersState[type] = createEmptySummaryFilterState();
+                summaryFiltersInitialized[type] = false;
+                summaryFiltersContext[type] = { region: '', type: '', warehouse: '', date: '' };
+                summaryFiltersPagination[type] = {};
+                summaryResetBound[type] = false;
+            });
+
+            const SUMMARY_FILTER_LAYOUT = {
+                general: {
+                    panelId: 'generalSummaryFilters',
+                    resetId: 'generalFiltersReset',
+                    groups: [
+                        { key: 'results', elementId: 'summaryFilter-general-results', formatter: value => value },
+                        { key: 'months', elementId: 'summaryFilter-general-months', formatter: formatMonthLabel },
+                        { key: 'weeks', elementId: 'summaryFilter-general-weeks', formatter: value => formatNumericLabel(value) },
+                        { key: 'dates', elementId: 'summaryFilter-general-dates', formatter: formatDateLabel }
+                    ]
+                },
+                region: {
+                    panelId: 'regionSummaryFilters',
+                    resetId: 'regionFiltersReset',
+                    groups: [
+                        { key: 'results', elementId: 'summaryFilter-region-results', formatter: value => value },
+                        { key: 'months', elementId: 'summaryFilter-region-months', formatter: formatMonthLabel },
+                        { key: 'weeks', elementId: 'summaryFilter-region-weeks', formatter: value => formatNumericLabel(value) },
+                        { key: 'dates', elementId: 'summaryFilter-region-dates', formatter: formatDateLabel }
+                    ]
+                },
+                type: {
+                    panelId: 'typeSummaryFilters',
+                    resetId: 'typeFiltersReset',
+                    groups: [
+                        { key: 'results', elementId: 'summaryFilter-type-results', formatter: value => value },
+                        { key: 'months', elementId: 'summaryFilter-type-months', formatter: formatMonthLabel },
+                        { key: 'weeks', elementId: 'summaryFilter-type-weeks', formatter: value => formatNumericLabel(value) },
+                        { key: 'dates', elementId: 'summaryFilter-type-dates', formatter: formatDateLabel }
+                    ]
+                },
+                object: {
+                    panelId: 'objectSummaryFilters',
+                    resetId: 'objectFiltersReset',
+                    groups: [
+                        { key: 'results', elementId: 'summaryFilter-object-results', formatter: value => value },
+                        { key: 'months', elementId: 'summaryFilter-object-months', formatter: formatMonthLabel },
+                        { key: 'weeks', elementId: 'summaryFilter-object-weeks', formatter: value => formatNumericLabel(value) },
+                        { key: 'dates', elementId: 'summaryFilter-object-dates', formatter: formatDateLabel }
+                    ]
+                },
+                months: {
+                    panelId: 'monthsSummaryFilters',
+                    resetId: 'monthsFiltersReset',
+                    groups: [
+                        { key: 'results', elementId: 'summaryFilter-months-results', formatter: value => value },
+                        { key: 'months', elementId: 'summaryFilter-months-months', formatter: formatMonthLabel },
+                        { key: 'weeks', elementId: 'summaryFilter-months-weeks', formatter: value => formatNumericLabel(value) },
+                        { key: 'dates', elementId: 'summaryFilter-months-dates', formatter: formatDateLabel }
+                    ]
+                },
+                weeks: {
+                    panelId: 'weeksSummaryFilters',
+                    resetId: 'weeksFiltersReset',
+                    groups: [
+                        { key: 'results', elementId: 'summaryFilter-weeks-results', formatter: value => value },
+                        { key: 'months', elementId: 'summaryFilter-weeks-months', formatter: formatMonthLabel },
+                        { key: 'weeks', elementId: 'summaryFilter-weeks-weeks', formatter: value => formatNumericLabel(value) },
+                        { key: 'dates', elementId: 'summaryFilter-weeks-dates', formatter: formatDateLabel }
+                    ]
+                }
+            };
+
+            let activeSummaryType = 'general';
+
+            function resetSummaryFiltersToDefaults(summaryType, baseFilters = {}) {
+                summaryFiltersState[summaryType] = createEmptySummaryFilterState();
+                const state = summaryFiltersState[summaryType];
+
+                if (baseFilters.region) {
+                    state.regions.push(String(baseFilters.region));
+                }
+                if (baseFilters.type) {
+                    state.types.push(String(baseFilters.type));
+                }
+                if (baseFilters.warehouse) {
+                    state.warehouses.push(String(baseFilters.warehouse));
+                }
+                if (baseFilters.date) {
+                    state.dates.push(String(baseFilters.date));
+                }
+
+                summaryFiltersContext[summaryType] = {
+                    region: String(baseFilters.region || ''),
+                    type: String(baseFilters.type || ''),
+                    warehouse: String(baseFilters.warehouse || ''),
+                    date: String(baseFilters.date || '')
+                };
+                summaryFiltersInitialized[summaryType] = true;
+                summaryFiltersPagination[summaryType] = {};
+            }
+
+            function ensureSummaryFilters(summaryType, datasets, { renderPanel = false, keepSelections = false, baseFilters = {} } = {}) {
+                const base = {
+                    region: String(baseFilters.region || ''),
+                    type: String(baseFilters.type || ''),
+                    warehouse: String(baseFilters.warehouse || ''),
+                    date: String(baseFilters.date || '')
+                };
+
+                const context = summaryFiltersContext[summaryType];
+                const changed =
+                    !summaryFiltersInitialized[summaryType] ||
+                    context.region !== base.region ||
+                    context.type !== base.type ||
+                    context.warehouse !== base.warehouse ||
+                    context.date !== base.date;
+
+                if (!summaryFiltersInitialized[summaryType] || (!keepSelections && changed)) {
+                    resetSummaryFiltersToDefaults(summaryType, base);
+                } else if (changed) {
+                    summaryFiltersContext[summaryType] = base;
+                    summaryFiltersPagination[summaryType] = {};
+                }
+
+                if (renderPanel) {
+                    renderSummaryFilters(summaryType, datasets);
+                    setupSummaryResetButton(summaryType);
+                }
+            }
+
+            function setupSummaryResetButton(summaryType) {
+                if (summaryResetBound[summaryType]) {
+                    return;
+                }
+                const layout = SUMMARY_FILTER_LAYOUT[summaryType];
+                if (!layout || !layout.resetId) {
+                    return;
+                }
+                const resetButton = document.getElementById(layout.resetId);
+                if (!resetButton) {
+                    return;
+                }
+                summaryResetBound[summaryType] = true;
+                resetButton.addEventListener('click', () => {
+                    resetSummaryFiltersToDefaults(summaryType, summaryFiltersContext[summaryType]);
+                    renderSummaryFilters(summaryType, getDatasets());
+                    window.loadSummaryData(summaryType);
+                });
+            }
+
+            function collectAvailableFilters(datasets) {
+                const regionOptions = Object.keys(window.warehouses || {});
+                const typeOptions = SUMMARY_TYPE_OPTIONS.slice();
+                const checkTypeSet = new Set();
+                const resultSet = new Set();
+                const monthSet = new Set();
+                const weekSet = new Set();
+                const warehouseSet = new Set();
+                const dateSet = new Set();
+
+                const collectAttributes = (item) => {
+                    if (!item) {
+                        return;
+                    }
+
+                    const date = getDateFromItem(item);
+                    if (!date) {
+                        return;
+                    }
+
+                    if (item.warehouse) {
+                        warehouseSet.add(String(item.warehouse));
+                    }
+
+                        monthSet.add(String(date.getUTCMonth() + 1));
+                    dateSet.add(String(date.getUTCDate()));
+                        if (typeof window.getWeekNumber === 'function') {
+                            const weekNumber = window.getWeekNumber(date);
+                            if (weekNumber) {
+                                weekSet.add(String(weekNumber));
+                        }
+                    }
+                };
+
+                datasets.investigations.forEach(item => {
+                    if (item && item.checkType) {
+                        checkTypeSet.add(String(item.checkType));
+                    }
+                    if (item && item.result) {
+                        resultSet.add(String(item.result));
+                    }
+                    collectAttributes(item);
+                });
+
+                datasets.incidents.forEach(collectAttributes);
+                datasets.activities.forEach(collectAttributes);
+                datasets.appeals.forEach(collectAttributes);
+
+                if (Array.isArray(INVESTIGATION_TYPES)) {
+                    INVESTIGATION_TYPES.forEach(type => checkTypeSet.add(String(type)));
+                }
+
+                for (let month = 1; month <= 12; month++) {
+                    monthSet.add(String(month));
+                }
+                for (let week = 1; week <= 52; week++) {
+                    weekSet.add(String(week));
+                }
+
+                const dateOptions = Array.from({ length: 31 }, (_, index) => String(index + 1));
+
+                return {
+                    regions: regionOptions,
+                    types: typeOptions,
+                    checkTypes: Array.from(checkTypeSet).sort((a, b) => a.localeCompare(b, 'ru')),
+                    results: Array.from(resultSet).sort((a, b) => a.localeCompare(b, 'ru')),
+                    months: Array.from(monthSet).sort((a, b) => Number(a) - Number(b)),
+                    weeks: Array.from(weekSet).sort((a, b) => Number(a) - Number(b)),
+                    warehouses: Array.from(warehouseSet).sort((a, b) => a.localeCompare(b, 'ru')),
+                    dates: Array.from(new Set([...dateSet, ...dateOptions])).sort((a, b) => Number(a) - Number(b))
+                };
+            }
+
+            function renderSummaryFilters(summaryType, datasets) {
+                const layout = SUMMARY_FILTER_LAYOUT[summaryType];
+                if (!layout) {
+                    return;
+                }
+
+                const options = collectAvailableFilters(datasets);
+                const state = summaryFiltersState[summaryType];
+
+                layout.groups.forEach(group => {
+                renderFilterGroup(summaryType, group, options[group.key], state[group.key]);
+                });
+            }
+
+
+            function renderFilterGroup(summaryType, group, values = [], selectedValues = []) {
+                const container = document.getElementById(group.elementId);
+                if (!container) {
+                    return;
+                }
+
+                const availableValues = Array.isArray(values) ? values.map(value => String(value)) : [];
+                container.innerHTML = '';
+                if (!availableValues.length) {
+                    const placeholder = document.createElement('span');
+                    placeholder.className = 'filter-empty';
+                    placeholder.textContent = 'Нет данных';
+                    container.appendChild(placeholder);
+                    return;
+                }
+
+                const selectedSet = new Set((selectedValues || []).map(value => String(value)));
+
+                if (group.key === 'checkTypes') {
+                    const list = document.createElement('div');
+                    list.className = 'filter-list';
+                    availableValues.forEach(value => {
+                        const item = document.createElement('label');
+                        item.className = 'filter-list-item';
+
+                        const input = document.createElement('input');
+                        input.type = 'checkbox';
+                        input.checked = selectedSet.has(value);
+                        input.addEventListener('change', () => {
+                            item.classList.toggle('active', input.checked);
+                            toggleSummaryFilterValue(summaryType, group.key, value);
+                        });
+
+                        const text = document.createElement('span');
+                        text.textContent = group.formatter ? group.formatter(value) : value;
+
+                        item.appendChild(input);
+                        item.appendChild(text);
+                        if (selectedSet.has(value)) {
+                            item.classList.add('active');
+                        }
+                        list.appendChild(item);
+                    });
+                    container.appendChild(list);
+                    return;
+                }
+
+                const pageSize = Number(group.pageSize) || 0;
+
+                if (pageSize && availableValues.length > pageSize) {
+                    const totalPages = Math.ceil(availableValues.length / pageSize);
+                    let page = getFilterPage(summaryType, group.key);
+
+                    const firstSelectedIndex = availableValues.findIndex(value => selectedSet.has(value));
+                    if (firstSelectedIndex !== -1) {
+                        const selectedPage = Math.floor(firstSelectedIndex / pageSize);
+                        if (selectedPage !== page) {
+                            page = selectedPage;
+                            setFilterPage(summaryType, group.key, page);
+                        }
+                    }
+
+                    page = Math.max(0, Math.min(page, totalPages - 1));
+                    setFilterPage(summaryType, group.key, page);
+
+                    const start = page * pageSize;
+                    const pageValues = availableValues.slice(start, start + pageSize);
+
+                    const nav = document.createElement('div');
+                    nav.className = 'filter-chip-nav';
+
+                    const prevButton = document.createElement('button');
+                    prevButton.type = 'button';
+                    prevButton.className = 'filter-nav-button';
+                    prevButton.innerHTML = '‹';
+                    prevButton.disabled = page === 0;
+                    prevButton.addEventListener('click', () => {
+                        setFilterPage(summaryType, group.key, Math.max(page - 1, 0));
+                        renderFilterGroup(summaryType, group, values, summaryFiltersState[summaryType][group.key]);
+                    });
+
+                    const track = document.createElement('div');
+                    track.className = 'filter-chip-track';
+                    pageValues.forEach(value => {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = 'filter-chip' + (selectedSet.has(value) ? ' active' : '');
+                        button.textContent = group.formatter ? group.formatter(value) : value;
+                        button.addEventListener('click', () => toggleSummaryFilterValue(summaryType, group.key, value));
+                        track.appendChild(button);
+                    });
+
+                    const nextButton = document.createElement('button');
+                    nextButton.type = 'button';
+                    nextButton.className = 'filter-nav-button';
+                    nextButton.innerHTML = '›';
+                    nextButton.disabled = page >= totalPages - 1;
+                    nextButton.addEventListener('click', () => {
+                        setFilterPage(summaryType, group.key, Math.min(page + 1, totalPages - 1));
+                        renderFilterGroup(summaryType, group, values, summaryFiltersState[summaryType][group.key]);
+                    });
+
+                    nav.appendChild(prevButton);
+                    nav.appendChild(track);
+                    nav.appendChild(nextButton);
+                    container.appendChild(nav);
+                    return;
+                }
+
+                availableValues.forEach(value => {
+                    const button = document.createElement('button');
+                    button.type = 'button';
+                    button.className = 'filter-chip' + (selectedSet.has(value) ? ' active' : '');
+                    button.textContent = group.formatter ? group.formatter(value) : value;
+                    button.addEventListener('click', () => toggleSummaryFilterValue(summaryType, group.key, value));
+                    container.appendChild(button);
+                });
+            }
+
+            function getFilterPage(summaryType, key) {
+                if (!summaryFiltersPagination[summaryType]) {
+                    summaryFiltersPagination[summaryType] = {};
+                }
+                if (typeof summaryFiltersPagination[summaryType][key] !== 'number') {
+                    summaryFiltersPagination[summaryType][key] = 0;
+                }
+                return summaryFiltersPagination[summaryType][key];
+            }
+
+            function setFilterPage(summaryType, key, page) {
+                if (!summaryFiltersPagination[summaryType]) {
+                    summaryFiltersPagination[summaryType] = {};
+                }
+                summaryFiltersPagination[summaryType][key] = page;
+            }
+
+            function toggleSummaryFilterValue(summaryType, key, value) {
+                const state = summaryFiltersState[summaryType];
+                const list = state[key];
+                if (!Array.isArray(list)) {
+                    return;
+                }
+                const stringValue = String(value);
+                const index = list.indexOf(stringValue);
+                if (index === -1) {
+                    list.push(stringValue);
+                } else {
+                    list.splice(index, 1);
+                }
+                window.loadSummaryData(summaryType, { keepSelections: true });
+            }
+
+            function formatNumericLabel(value, digits = 2) {
+                const numeric = Number(value);
+                if (Number.isFinite(numeric)) {
+                    return String(numeric).padStart(digits, '0');
+                }
+                const parts = String(value).split('-');
+                const lastPart = parts[parts.length - 1];
+                const parsed = Number(lastPart);
+                return Number.isFinite(parsed) ? String(parsed).padStart(digits, '0') : value;
+            }
+
+            function formatMonthLabel(value) {
+                return formatNumericLabel(value, 2);
+            }
+
+            function formatDateLabel(value) {
+                return formatNumericLabel(value, 2);
+            }
+
+            function getDateFromItem(item) {
+                if (!item) {
+                    return null;
+                }
+                const raw = item.date || (item.timestamp ? String(item.timestamp).split('T')[0] : '');
+                if (!raw) {
+                    return null;
+                }
+                const date = new Date(raw);
+                return Number.isNaN(date.getTime()) ? null : date;
+            }
+
+            function applySummaryFilters(summaryType, datasets) {
+                const filters = summaryFiltersState[summaryType];
+
+                const applyCommon = (item) => {
+                    if (!item) {
+                        return false;
+                    }
+
+                    if (filters.regions.length && !filters.regions.includes(String(item.region))) {
+                        return false;
+                    }
+                    if (filters.types.length && !filters.types.includes(String(item.type))) {
+                        return false;
+                    }
+
+                    if (filters.warehouses.length) {
+                        const warehouseValue = item.warehouse ? String(item.warehouse) : '';
+                        if (!warehouseValue || !filters.warehouses.includes(warehouseValue)) {
+                            return false;
+                        }
+                    }
+
+                    const requiresDateCheck = filters.months.length || filters.weeks.length || filters.dates.length;
+                    if (!requiresDateCheck) {
+                        return true;
+                    }
+
+                    const date = getDateFromItem(item);
+                    if (filters.dates.length) {
+                        if (!date) {
+                            return false;
+                        }
+                        const dayValue = String(date.getUTCDate());
+                        if (!filters.dates.includes(dayValue)) {
+                            return false;
+                        }
+                    }
+
+                    if (!filters.months.length && !filters.weeks.length) {
+                        return true;
+                    }
+
+                    if (!date) {
+                        return false;
+                    }
+
+                    if (filters.months.length) {
+                        const monthValue = String(date.getUTCMonth() + 1);
+                        if (!filters.months.includes(monthValue)) {
+                            return false;
+                        }
+                    }
+
+                    if (filters.weeks.length) {
+                        if (typeof window.getWeekNumber !== 'function') {
+                            return false;
+                        }
+                        const weekNumber = window.getWeekNumber(date);
+                        if (!weekNumber || !filters.weeks.includes(String(weekNumber))) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                };
+
+                const investigations = datasets.investigations.filter(item => {
+                    if (!applyCommon(item)) {
+                        return false;
+                    }
+                    if (filters.checkTypes.length) {
+                        const value = item && item.checkType ? String(item.checkType) : null;
+                        if (!value || !filters.checkTypes.includes(value)) {
+                            return false;
+                        }
+                    }
+                    if (filters.results.length) {
+                        const resultValue = item && item.result ? String(item.result) : null;
+                        if (!resultValue || !filters.results.includes(resultValue)) {
+                            return false;
+                        }
+                    }
+                    return true;
+                });
+
+                const incidents = datasets.incidents.filter(applyCommon);
+                const activities = datasets.activities.filter(applyCommon);
+                const appeals = datasets.appeals.filter(applyCommon);
+
+                return { investigations, incidents, activities, appeals };
+            }
+
+            window.loadSummaryData = function (summaryType, options = {}) {
+                const datasets = {
+                    investigations: JSON.parse(localStorage.getItem('investigations') || '[]'),
+                    incidents: JSON.parse(localStorage.getItem('sb_incidents') || '[]'),
+                    activities: JSON.parse(localStorage.getItem('sb_activities') || '[]'),
+                    appeals: JSON.parse(localStorage.getItem('sb_appeals') || '[]')
+                };
+
+                const renderPanel = Boolean(SUMMARY_FILTER_LAYOUT[summaryType]);
+                const baseFilters = summaryType === 'general'
+                    ? {}
+                    : {
+                        region: state.region || '',
+                        type: state.type || ''
+                    };
+                if (summaryType !== 'general' && state.region) {
+                    baseFilters.region = state.region;
+                }
+                if (summaryType !== 'general' && state.type) {
+                    baseFilters.type = state.type;
+                }
+                if ((summaryType === 'object' || summaryType === 'months' || summaryType === 'weeks') && state.warehouse) {
+                    baseFilters.warehouse = state.warehouse;
+                }
+                if (summaryType === 'object' && state.selectedDate) {
+                    baseFilters.date = state.selectedDate;
+                }
+
+                activeSummaryType = summaryType;
+                ensureSummaryFilters(summaryType, datasets, {
+                    renderPanel,
+                    keepSelections: Boolean(options.keepSelections),
+                    baseFilters
+                });
+
+                const filtered = applySummaryFilters(summaryType, datasets);
+                const incidentOptions = summaryType === 'general'
+                    ? { dimension: 'region', dimensionLabel: 'Регионы' }
+                    : { dimension: 'warehouse', dimensionLabel: 'Склады' };
+
+                if (summaryType === 'general' || summaryType === 'region' || summaryType === 'type') {
+                    renderInvestigationSummary(filtered.investigations, `${summaryType}InvestigationsSummary`, {
+                        chartKey: `${summaryType}Investigations`,
+                        canvasId: `${summaryType}InvestigationsChart`,
+                        datasetLabel: 'Количество расследований'
+                    });
+                    renderIncidentsSummary(filtered.incidents, `${summaryType}IncidentsSummary`, {
+                        dimension: incidentOptions.dimension,
+                        dimensionLabel: incidentOptions.dimensionLabel,
+                        chartKey: `${summaryType}Incidents`,
+                        canvasId: `${summaryType}IncidentsChart`,
+                        datasetLabel: 'Количество инцидентов'
+                    });
+                    renderActivitiesSummary(filtered.activities, `${summaryType}ActivitiesSummary`, {
+                        chartKey: `${summaryType}Activities`,
+                        canvasId: `${summaryType}ActivitiesChart`,
+                        datasetLabel: 'Количество мероприятий'
+                    });
+                    renderAppealsSummary(filtered.appeals, `${summaryType}AppealsSummary`, {
+                        chartKey: `${summaryType}Appeals`,
+                        canvasId: `${summaryType}AppealsChart`,
+                        datasetLabel: 'Количество обращений'
+                    });
+                } else if (summaryType === 'object') {
+                    displayObjectSummary(filtered.investigations, filtered.incidents, filtered.activities, filtered.appeals);
+                } else if (summaryType === 'months') {
+                    displayMonthsSummary(filtered.investigations, filtered.incidents, filtered.activities, filtered.appeals);
+                } else if (summaryType === 'weeks') {
+                    displayWeeksSummary(filtered.investigations, filtered.incidents, filtered.activities, filtered.appeals);
+                }
+            };
+        })();
+    </script>
+
+</body>
+</html>
+
